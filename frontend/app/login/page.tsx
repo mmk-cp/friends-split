@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useAuth } from "@/store/authStore";
 import { apiFetch } from "@/lib/api";
@@ -11,10 +11,15 @@ import ThemeToggle from "@/components/ThemeToggle";
 
 export default function LoginPage() {
   const router = useRouter();
-  const sp = useSearchParams();
-  const next = sp.get("next") || "/dashboard";
+  const [nextUrl, setNextUrl] = React.useState("/dashboard");
   const { setAuth } = useAuth();
   const toast = useToast();
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    setNextUrl(sp.get("next") || "/dashboard");
+  }, []);
 
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -31,7 +36,7 @@ export default function LoginPage() {
       await setAuth(tok.access_token);
       const me = await apiFetch<any>("/users/me", { auth: true });
       if (!me.is_approved) router.replace("/waiting-approval");
-      else router.replace(next);
+      else router.replace(nextUrl);
     } catch (err: any) {
       toast.push({ type: "error", message: err.message || "خطا در ورود" });
     } finally {

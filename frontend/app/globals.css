@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=Markazi+Text:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,6 +19,8 @@
     --accent-soft: #ccfbf1;
     --danger: #e11d48;
     --shadow: 0 18px 40px rgba(16, 24, 40, 0.12);
+    --font-body: "Vazirmatn", "Tahoma", "Segoe UI", sans-serif;
+    --font-display: "Markazi Text", "Vazirmatn", "Tahoma", "Segoe UI", sans-serif;
   }
 
   .dark {
@@ -43,7 +47,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: var(--font-body, sans-serif);
+    font-family: var(--font-body);
   }
 
   body::after {

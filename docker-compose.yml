@@ -26,6 +26,7 @@ services:
       CORS_ORIGINS: http://localhost:3000
     ports:
       - "8000:8000"
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
