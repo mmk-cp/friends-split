@@ -7,6 +7,7 @@ import { useAuth } from "@/store/authStore";
 import { apiFetch } from "@/lib/api";
 import { Card, Button, Input, Label } from "@/components/ui";
 import { useToast } from "@/components/Toast";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -39,10 +40,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <Card className="w-full max-w-md p-6">
-        <div className="text-xl font-bold">ورود</div>
-        <div className="text-sm text-slate-600 mt-1">برای ادامه وارد شوید</div>
+    <div className="min-h-screen relative flex items-center justify-center px-4 py-10">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <Card className="w-full max-w-md p-6 animate-rise">
+        <div className="text-2xl font-display font-semibold">ورود</div>
+        <div className="text-sm text-[var(--muted)] mt-1">برای ادامه وارد شوید</div>
 
         <form onSubmit={submit} className="mt-5 space-y-3">
           <div>
@@ -59,9 +63,9 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <div className="mt-4 text-sm text-slate-600">
+        <div className="mt-4 text-sm text-[var(--muted)]">
           حساب ندارید؟{" "}
-          <Link className="text-slate-900 font-medium underline" href="/register">
+          <Link className="text-[var(--text)] font-medium underline" href="/register">
             ثبت‌نام
           </Link>
         </div>

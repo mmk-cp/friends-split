@@ -43,8 +43,8 @@ export default function ExpenseCard({
     <Card className="p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="font-semibold truncate">{expense.description || "هزینه"}</div>
-          <div className="text-xs text-slate-600 mt-1">
+          <div className="font-semibold font-display truncate">{expense.description || "هزینه"}</div>
+          <div className="text-xs text-[var(--muted)] mt-1">
             پرداخت‌کننده: {userName(users, expense.payer_id)} • تاریخ: {formatJalaliDate(expense.expense_date)}
           </div>
         </div>
@@ -56,14 +56,14 @@ export default function ExpenseCard({
         </div>
       </div>
 
-      <div className="mt-3 border-t border-slate-100 pt-3">
-        <div className="text-xs font-medium text-slate-700 mb-2">مشارکت‌کنندگان</div>
+      <div className="mt-3 border-t border-[var(--border)] pt-3">
+        <div className="text-xs font-medium text-[var(--muted)] mb-2">مشارکت‌کنندگان</div>
         <div className="flex flex-col gap-2">
           {expense.participants.map((p) => (
             <div key={p.user_id} className="flex items-center justify-between text-sm">
               <div className="truncate">
                 {userName(users, p.user_id)}{" "}
-                <span className="text-xs text-slate-500">({formatToman(p.share_amount)})</span>
+                <span className="text-xs text-[var(--muted)]">({formatToman(p.share_amount)})</span>
               </div>
               {p.approved ? <Badge tone="green">OK</Badge> : <Badge tone="amber">Pending</Badge>}
             </div>

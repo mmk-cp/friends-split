@@ -65,7 +65,7 @@ export default function PaymentModal({
   const canSubmit = Number(onlyDigits(amount)) > 0 && toUserId !== "";
   const daysInMonth = jalaliMonthLength(jy, jm);
   const selectClass =
-    "w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-200";
+    "w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)] outline-none focus:ring-2 focus:ring-[var(--accent-soft)] focus:border-[var(--accent)]";
 
   return (
     <Modal open={open} onClose={onClose} title="ثبت پرداخت">
@@ -75,7 +75,7 @@ export default function PaymentModal({
           <select
             value={toUserId}
             onChange={(e) => setToUserId(e.target.value ? Number(e.target.value) : "")}
-            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"
+            className={selectClass}
           >
             <option value="">انتخاب کنید…</option>
             {users.map((u) => (
@@ -94,7 +94,7 @@ export default function PaymentModal({
               value={amount}
               onChange={(e) => setAmount(formatThousands(e.target.value))}
             />
-            <span className="text-xs text-slate-500 whitespace-nowrap">تومان</span>
+            <span className="text-xs text-[var(--muted)] whitespace-nowrap">تومان</span>
           </div>
         </div>
         <div>
@@ -127,7 +127,7 @@ export default function PaymentModal({
               ))}
             </select>
           </div>
-          <div className="mt-1 text-xs text-slate-500">تاریخ شمسی (پیش‌فرض: امروز)</div>
+          <div className="mt-1 text-xs text-[var(--muted)]">تاریخ شمسی (پیش‌فرض: امروز)</div>
         </div>
 
         <div className="flex gap-2">

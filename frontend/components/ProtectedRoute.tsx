@@ -21,7 +21,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     }
   }, [loading, user, router, path]);
 
-  if (loading) return <div className="container-page py-10 text-sm text-slate-600">Loading…</div>;
+  if (loading) return <div className="container-page py-10 text-sm text-[var(--muted)]">Loading…</div>;
   if (!user) return null;
   if (!user.is_approved) return null;
   return <>{children}</>;

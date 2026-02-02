@@ -5,6 +5,7 @@ import { Card, Button } from "@/components/ui";
 import { useAuth } from "@/store/authStore";
 import { useToast } from "@/components/Toast";
 import { useRouter } from "next/navigation";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function WaitingApproval() {
   const { refreshMe, user, logout } = useAuth();
@@ -28,10 +29,13 @@ export default function WaitingApproval() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <Card className="w-full max-w-md p-6 space-y-3">
-        <div className="text-xl font-bold">در انتظار تایید</div>
-        <div className="text-sm text-slate-600">
+    <div className="min-h-screen relative flex items-center justify-center px-4 py-10">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <Card className="w-full max-w-md p-6 space-y-3 animate-rise">
+        <div className="text-2xl font-display font-semibold">در انتظار تایید</div>
+        <div className="text-sm text-[var(--muted)]">
           {user ? `${user.first_name} ${user.last_name}` : ""} حساب شما هنوز توسط ادمین تایید نشده است.
         </div>
         <Button onClick={check} disabled={loading}>

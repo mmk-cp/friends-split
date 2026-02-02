@@ -6,6 +6,7 @@ import React from "react";
 import { apiFetch } from "@/lib/api";
 import { Card, Button, Input, Label } from "@/components/ui";
 import { useToast } from "@/components/Toast";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -40,10 +41,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <Card className="w-full max-w-md p-6">
-        <div className="text-xl font-bold">ثبت‌نام</div>
-        <div className="text-sm text-slate-600 mt-1">حساب جدید بسازید</div>
+    <div className="min-h-screen relative flex items-center justify-center px-4 py-10">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <Card className="w-full max-w-md p-6 animate-rise">
+        <div className="text-2xl font-display font-semibold">ثبت‌نام</div>
+        <div className="text-sm text-[var(--muted)] mt-1">حساب جدید بسازید</div>
 
         <form onSubmit={submit} className="mt-5 space-y-3">
           <div className="grid grid-cols-2 gap-2">
@@ -70,9 +74,9 @@ export default function RegisterPage() {
           </Button>
         </form>
 
-        <div className="mt-4 text-sm text-slate-600">
+        <div className="mt-4 text-sm text-[var(--muted)]">
           حساب دارید؟{" "}
-          <Link className="text-slate-900 font-medium underline" href="/login">
+          <Link className="text-[var(--text)] font-medium underline" href="/login">
             ورود
           </Link>
         </div>

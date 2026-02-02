@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useAuth } from "@/store/authStore";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const nav = [
   { href: "/dashboard", label: "داشبورد", icon: "🏠" },
@@ -20,17 +21,48 @@ export default function Navbar() {
   return (
     <>
       {/* Top bar */}
-      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-100">
-        <div className="container-page py-3 flex items-center justify-between">
-          <div className="font-bold">Friends Split</div>
-          <div className="flex items-center gap-2">
+      <div className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--surface)]/80 backdrop-blur">
+        <div className="container-page py-3 flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="font-display text-xl">Friends Split</div>
+            <div className="hidden sm:block text-xs text-[var(--muted)]">تقسیم هزینه‌ها با آرامش</div>
+          </div>
+
+          {user && (
+            <nav className="hidden md:flex items-center gap-2">
+              {items.map((it) => {
+                const active = path.startsWith(it.href.split("#")[0]);
+                return (
+                  <Link
+                    key={it.href}
+                    href={it.href}
+                    className={clsx(
+                      "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition",
+                      active
+                        ? "border-transparent bg-[var(--accent)] text-white"
+                        : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--surface)]"
+                    )}
+                  >
+                    <span>{it.icon}</span>
+                    <span>{it.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
+
+          <div className="ms-auto flex items-center gap-2">
+            <ThemeToggle />
             {user && (
-              <div className="hidden sm:block text-xs text-slate-600">
+              <div className="hidden sm:block text-xs text-[var(--muted)]">
                 {user.first_name} {user.last_name} {user.is_admin ? "(Admin)" : ""}
               </div>
             )}
             {user && (
-              <button onClick={logout} className="text-xs px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200">
+              <button
+                onClick={logout}
+                className="text-xs px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] hover:bg-[var(--surface)]"
+              >
                 خروج
               </button>
             )}
@@ -40,15 +72,17 @@ export default function Navbar() {
 
       {/* Bottom nav (mobile) */}
       {user && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-100 sm:hidden">
-          <div className="container-page py-2 grid grid-cols-3 gap-1">
+        <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-[var(--border)] bg-[var(--surface)] sm:hidden">
+          <div className="container-page py-2 grid grid-cols-3 gap-2">
             {items.slice(0, 3).map((it) => (
               <Link
                 key={it.href}
                 href={it.href}
                 className={clsx(
-                  "flex flex-col items-center justify-center gap-0.5 rounded-xl py-2 text-xs",
-                  path.startsWith(it.href.split("#")[0]) ? "bg-slate-900 text-white" : "bg-slate-50 text-slate-800"
+                  "flex flex-col items-center justify-center gap-0.5 rounded-xl py-2 text-xs border transition",
+                  path.startsWith(it.href.split("#")[0])
+                    ? "border-transparent bg-[var(--accent)] text-white"
+                    : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)]"
                 )}
               >
                 <div className="text-base">{it.icon}</div>

@@ -20,7 +20,7 @@ export default function MonthPicker({
       <select
         value={year}
         onChange={(e) => onChange(parseInt(e.target.value, 10), month)}
-        className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"
+        className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)]"
       >
         {years.map((y) => (
           <option key={y} value={y}>
@@ -31,7 +31,7 @@ export default function MonthPicker({
       <select
         value={month}
         onChange={(e) => onChange(year, parseInt(e.target.value, 10))}
-        className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"
+        className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)]"
       >
         {months.map((m) => (
           <option key={m} value={m}>

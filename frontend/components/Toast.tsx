@@ -26,7 +26,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <div
             key={t.id}
             className={[
-              "w-full max-w-md rounded-2xl shadow-soft px-4 py-3 text-sm",
+              "w-full max-w-md rounded-2xl px-4 py-3 text-sm shadow-[var(--shadow)]",
               t.type === "success" ? "bg-emerald-600 text-white" : "bg-rose-600 text-white",
             ].join(" ")}
           >

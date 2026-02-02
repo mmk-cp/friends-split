@@ -44,24 +44,24 @@ export default function AdminPage() {
     <ProtectedRoute>
       <Navbar />
       <div className="container-page py-5 pb-24 sm:pb-8 space-y-4">
-        <Card className="p-4">
-          <div className="text-lg font-bold">پنل ادمین</div>
-          <div className="text-sm text-slate-600 mt-1">تایید کاربران جدید</div>
+        <Card className="p-5 animate-rise">
+          <div className="text-2xl font-display font-semibold">پنل ادمین</div>
+          <div className="text-sm text-[var(--muted)] mt-1">تایید کاربران جدید</div>
         </Card>
 
         {pendingQ.isLoading ? (
-          <div className="text-sm text-slate-600">در حال دریافت…</div>
+          <div className="text-sm text-[var(--muted)]">در حال دریافت…</div>
         ) : pending.length === 0 ? (
-          <Card className="p-4 text-sm text-slate-600">کاربرِ در انتظار تایید وجود ندارد.</Card>
+          <Card className="p-4 text-sm text-[var(--muted)]">کاربرِ در انتظار تایید وجود ندارد.</Card>
         ) : (
           <div className="grid gap-3">
             {pending.map((u) => (
-              <Card key={u.id} className="p-4 flex items-center justify-between gap-3">
+              <Card key={u.id} className="p-4 flex items-center justify-between gap-3 animate-rise">
                 <div className="min-w-0">
                   <div className="font-semibold truncate">
-                    {u.first_name} {u.last_name} <span className="text-sm text-slate-500">(@{u.username})</span>
+                    {u.first_name} {u.last_name} <span className="text-sm text-[var(--muted)]">(@{u.username})</span>
                   </div>
-                  <div className="text-xs text-slate-600 mt-1">
+                  <div className="text-xs text-[var(--muted)] mt-1">
                     <Badge tone="amber">Pending</Badge>
                   </div>
                 </div>

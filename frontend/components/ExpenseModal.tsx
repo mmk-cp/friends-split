@@ -67,7 +67,7 @@ export default function ExpenseModal({
   const canSubmit = Number(onlyDigits(amount)) > 0 && selected.length > 0;
   const daysInMonth = jalaliMonthLength(jy, jm);
   const selectClass =
-    "w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-200";
+    "w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)] outline-none focus:ring-2 focus:ring-[var(--accent-soft)] focus:border-[var(--accent)]";
 
   return (
     <Modal open={open} onClose={onClose} title="ثبت هزینه جدید">
@@ -81,7 +81,7 @@ export default function ExpenseModal({
               value={amount}
               onChange={(e) => setAmount(formatThousands(e.target.value))}
             />
-            <span className="text-xs text-slate-500 whitespace-nowrap">تومان</span>
+            <span className="text-xs text-[var(--muted)] whitespace-nowrap">تومان</span>
           </div>
         </div>
         <div>
@@ -114,7 +114,7 @@ export default function ExpenseModal({
               ))}
             </select>
           </div>
-          <div className="mt-1 text-xs text-slate-500">تاریخ شمسی (پیش‌فرض: امروز)</div>
+          <div className="mt-1 text-xs text-[var(--muted)]">تاریخ شمسی (پیش‌فرض: امروز)</div>
         </div>
 
         <UserSelect users={users} selected={selected} onChange={setSelected} title="افراد داخل هزینه (تقسیم مساوی)" />
@@ -127,7 +127,7 @@ export default function ExpenseModal({
             ثبت
           </Button>
         </div>
-        <div className="text-xs text-slate-500">
+        <div className="text-xs text-[var(--muted)]">
           نکته: می‌توانی خودت را انتخاب نکنی. مبلغ بین افراد انتخاب‌شده مساوی تقسیم می‌شود.
         </div>
       </div>
