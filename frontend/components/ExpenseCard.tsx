@@ -6,6 +6,7 @@ import { Badge, Button, Card } from "@/components/ui";
 import { apiFetch } from "@/lib/api";
 import { useToast } from "@/components/Toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { formatJalaliDate } from "@/lib/jalali";
 
 function userName(users: User[], id: number) {
   const u = users.find((x) => x.id === id);
@@ -43,7 +44,7 @@ export default function ExpenseCard({
         <div className="min-w-0">
           <div className="font-semibold truncate">{expense.description || "هزینه"}</div>
           <div className="text-xs text-slate-600 mt-1">
-            پرداخت‌کننده: {userName(users, expense.payer_id)} • تاریخ: {expense.expense_date}
+            پرداخت‌کننده: {userName(users, expense.payer_id)} • تاریخ: {formatJalaliDate(expense.expense_date)}
           </div>
         </div>
         <div className="text-right">

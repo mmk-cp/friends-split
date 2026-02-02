@@ -7,6 +7,7 @@ import type { User } from "@/types/user";
 import { apiFetch } from "@/lib/api";
 import { useToast } from "@/components/Toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { jalaliMonthLength, jalaliMonthName, jalaliToGregorianISO, todayJalaliDate } from "@/lib/jalali";
 
 export default function ExpenseModal({
   open,
@@ -21,23 +22,33 @@ export default function ExpenseModal({
   const qc = useQueryClient();
   const [amount, setAmount] = React.useState("");
   const [desc, setDesc] = React.useState("");
-  const [date, setDate] = React.useState(() => new Date().toISOString().slice(0, 10));
+  const [jy, setJy] = React.useState(() => todayJalaliDate().year);
+  const [jm, setJm] = React.useState(() => todayJalaliDate().month);
+  const [jd, setJd] = React.useState(() => todayJalaliDate().day);
   const [selected, setSelected] = React.useState<number[]>([]);
 
   React.useEffect(() => {
     if (!open) return;
     setAmount("");
     setDesc("");
-    setDate(new Date().toISOString().slice(0, 10));
+    const t = todayJalaliDate();
+    setJy(t.year);
+    setJm(t.month);
+    setJd(t.day);
     setSelected([]);
   }, [open]);
+
+  React.useEffect(() => {
+    const maxDay = jalaliMonthLength(jy, jm);
+    if (jd > maxDay) setJd(maxDay);
+  }, [jy, jm, jd]);
 
   const create = useMutation({
     mutationFn: async () => {
       const body = {
         amount: Number(amount),
         description: desc || null,
-        expense_date: date,
+        expense_date: jalaliToGregorianISO(jy, jm, jd),
         participant_user_ids: selected,
       };
       return apiFetch("/expenses", { method: "POST", auth: true, body: JSON.stringify(body) });
@@ -53,6 +64,9 @@ export default function ExpenseModal({
   });
 
   const canSubmit = Number(amount) > 0 && selected.length > 0;
+  const daysInMonth = jalaliMonthLength(jy, jm);
+  const selectClass =
+    "w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-200";
 
   return (
     <Modal open={open} onClose={onClose} title="ثبت هزینه جدید">
@@ -67,7 +81,31 @@ export default function ExpenseModal({
         </div>
         <div>
           <Label>تاریخ</Label>
-          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          <div className="grid grid-cols-3 gap-2">
+            <Input
+              type="number"
+              value={jy}
+              onChange={(e) => setJy(Number(e.target.value))}
+              min={1200}
+              max={1600}
+              placeholder="سال"
+            />
+            <select className={selectClass} value={jm} onChange={(e) => setJm(Number(e.target.value))}>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                <option key={m} value={m}>
+                  {jalaliMonthName(m)}
+                </option>
+              ))}
+            </select>
+            <select className={selectClass} value={jd} onChange={(e) => setJd(Number(e.target.value))}>
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="mt-1 text-xs text-slate-500">تاریخ شمسی (پیش‌فرض: امروز)</div>
         </div>
 
         <UserSelect users={users} selected={selected} onChange={setSelected} title="افراد داخل هزینه (تقسیم مساوی)" />
