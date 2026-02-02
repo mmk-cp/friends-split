@@ -8,6 +8,7 @@ import { apiFetch } from "@/lib/api";
 import { useToast } from "@/components/Toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { jalaliMonthLength, jalaliMonthName, jalaliToGregorianISO, todayJalaliDate } from "@/lib/jalali";
+import { formatThousands, onlyDigits } from "@/lib/format";
 
 export default function ExpenseModal({
   open,
@@ -46,7 +47,7 @@ export default function ExpenseModal({
   const create = useMutation({
     mutationFn: async () => {
       const body = {
-        amount: Number(amount),
+        amount: Number(onlyDigits(amount)),
         description: desc || null,
         expense_date: jalaliToGregorianISO(jy, jm, jd),
         participant_user_ids: selected,
@@ -63,7 +64,7 @@ export default function ExpenseModal({
     onError: (e: any) => toast.push({ type: "error", message: e.message || "خطا" }),
   });
 
-  const canSubmit = Number(amount) > 0 && selected.length > 0;
+  const canSubmit = Number(onlyDigits(amount)) > 0 && selected.length > 0;
   const daysInMonth = jalaliMonthLength(jy, jm);
   const selectClass =
     "w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-200";
@@ -73,7 +74,15 @@ export default function ExpenseModal({
       <div className="space-y-3">
         <div>
           <Label>مبلغ</Label>
-          <Input inputMode="decimal" placeholder="مثلاً 250000" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          <div className="flex items-center gap-2">
+            <Input
+              inputMode="decimal"
+              placeholder="مثلاً 250000"
+              value={amount}
+              onChange={(e) => setAmount(formatThousands(e.target.value))}
+            />
+            <span className="text-xs text-slate-500 whitespace-nowrap">تومان</span>
+          </div>
         </div>
         <div>
           <Label>توضیح</Label>

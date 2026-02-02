@@ -11,6 +11,7 @@ import ExpenseCard from "@/components/ExpenseCard";
 import { todayJalaliYearMonth, jalaliMonthName } from "@/lib/jalali";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/store/authStore";
+import { formatToman } from "@/lib/format";
 import type { User } from "@/types/user";
 import type { Expense } from "@/types/expense";
 import type { SettlementReport } from "@/types/settlement";
@@ -135,7 +136,7 @@ export default function DashboardPage() {
                       <span className="font-medium">{nameOf(users, t.to_user_id)}</span>
                       {" پرداخت کند"}
                     </div>
-                    <div className="font-bold whitespace-nowrap">{t.amount}</div>
+                    <div className="font-bold whitespace-nowrap">{formatToman(t.amount)}</div>
                   </div>
                 ))}
               </div>

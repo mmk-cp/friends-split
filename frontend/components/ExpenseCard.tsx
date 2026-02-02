@@ -7,6 +7,7 @@ import { apiFetch } from "@/lib/api";
 import { useToast } from "@/components/Toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatJalaliDate } from "@/lib/jalali";
+import { formatToman } from "@/lib/format";
 
 function userName(users: User[], id: number) {
   const u = users.find((x) => x.id === id);
@@ -48,7 +49,7 @@ export default function ExpenseCard({
           </div>
         </div>
         <div className="text-right">
-          <div className="font-bold">{expense.amount}</div>
+          <div className="font-bold">{formatToman(expense.amount)}</div>
           <div className="mt-1">
             {expense.status === "approved" ? <Badge tone="green">تایید شده</Badge> : <Badge tone="amber">در انتظار</Badge>}
           </div>
@@ -62,7 +63,7 @@ export default function ExpenseCard({
             <div key={p.user_id} className="flex items-center justify-between text-sm">
               <div className="truncate">
                 {userName(users, p.user_id)}{" "}
-                <span className="text-xs text-slate-500">({p.share_amount})</span>
+                <span className="text-xs text-slate-500">({formatToman(p.share_amount)})</span>
               </div>
               {p.approved ? <Badge tone="green">OK</Badge> : <Badge tone="amber">Pending</Badge>}
             </div>
