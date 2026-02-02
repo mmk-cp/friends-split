@@ -15,8 +15,8 @@ const displayFont = Markazi_Text({
 });
 
 export const metadata = {
-  title: "Friends Split",
-  description: "Manage shared expenses",
+  title: "هم‌حساب",
+  description: "تقسیم هوشمند هزینه‌ها بین دوستان",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

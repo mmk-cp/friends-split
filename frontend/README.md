@@ -1,4 +1,4 @@
-# Friends Split - Front (Next.js)
+# HamHesab - Front (Next.js)
 
 ## Setup
 ```bash

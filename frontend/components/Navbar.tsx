@@ -40,7 +40,7 @@ export default function Navbar() {
       <div className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--surface)]/80 backdrop-blur">
         <div className="container-page py-3 flex items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="font-display text-xl">Friends Split</div>
+            <div className="font-display text-xl">هم‌حساب</div>
             <div className="hidden sm:block text-xs text-[var(--muted)]">تقسیم هزینه‌ها با آرامش</div>
           </div>
 

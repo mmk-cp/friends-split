@@ -1,4 +1,4 @@
-# Friends Split - Backend (FastAPI + MySQL)
+# HamHesab - Backend (FastAPI + MySQL)
 
 ## Setup
 ```bash

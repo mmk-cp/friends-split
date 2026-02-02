@@ -1,7 +1,21 @@
-### راه‌اندازی سریع
+# هم‌حساب (HamHesab)
+تقسیم هزینه‌ها بین دوستان با تمرکز روی تسویه دقیق و شفاف.
 
-#### Backend
+## امکانات
+- ثبت هزینه و تقسیم مساوی بین افراد
+- تایید هزینه توسط مشارکت‌کنندگان
+- ثبت پرداخت‌های واقعی (جزئی یا کامل)
+- گزارش تسویه ماهانه + مانده حساب شما با هر نفر
+- پنل ادمین برای تایید کاربران
+- تم روشن/تیره
 
+## تکنولوژی‌ها
+- Backend: FastAPI, SQLAlchemy, Alembic, MySQL
+- Frontend: Next.js, TailwindCSS, React Query
+
+## اجرای محلی (بدون Docker)
+
+### Backend
 ```bash
 cd backend
 python -m venv .venv
@@ -18,8 +32,7 @@ alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-#### Front
-
+### Frontend
 ```bash
 cd frontend
 npm install
@@ -29,3 +42,34 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1
 
 npm run dev
 ```
+
+## اجرای پروژه با Docker
+```bash
+docker compose up --build
+```
+
+سرویس‌ها:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+
+نکته: اولین کاربر ثبت‌نام‌شده **ادمین** و **تاییدشده** می‌شود.
+
+## متغیرهای محیطی مهم
+
+### Backend
+- `DATABASE_URL`
+- `SECRET_KEY`
+- `ACCESS_TOKEN_EXPIRE_MINUTES`
+- `CORS_ORIGINS`
+
+### Frontend
+- `NEXT_PUBLIC_API_BASE_URL`
+
+## نکات توسعه
+- در Docker، migrationها موقع بالا آمدن Backend اجرا می‌شود.
+- اگر دیتای تستی را می‌خواهید پاک کنید:
+  ```bash
+  docker compose down -v
+  ```
+
+---
