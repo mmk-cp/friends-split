@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 
@@ -62,3 +62,17 @@ def approve_user(
     db.commit()
     db.refresh(user)
     return user
+
+@router.delete("/{user_id}", status_code=204, response_class=Response)
+def delete_user(user_id: int, db: Session = Depends(get_db), _: User = Depends(require_admin)) -> Response:
+    user = db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.is_admin:
+        raise HTTPException(status_code=400, detail="Admin user cannot be deleted")
+    if user.is_approved:
+        raise HTTPException(status_code=400, detail="Approved user cannot be deleted")
+
+    db.delete(user)
+    db.commit()
+    return Response(status_code=204)

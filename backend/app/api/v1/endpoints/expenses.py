@@ -3,11 +3,11 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from decimal import Decimal, ROUND_HALF_UP
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from sqlalchemy import select, and_
 
-from app.api.deps import get_db, require_approved_user
+from app.api.deps import get_db, require_approved_user, require_admin
 from app.core.jalali import to_shamsi_year_month
 from app.models.user import User
 from app.models.expense import Expense, ExpenseParticipant
@@ -122,3 +122,15 @@ def approve_expense(expense_id: int, db: Session = Depends(get_db), current: Use
     db.commit()
     db.refresh(expense)
     return ExpenseApproveResponse(expense_id=expense_id, user_id=current.id, approved=True, expense_status=expense.status)
+
+@router.delete("/{expense_id}", status_code=204, response_class=Response)
+def delete_expense(expense_id: int, db: Session = Depends(get_db), _: User = Depends(require_admin)) -> Response:
+    expense = db.get(Expense, expense_id)
+    if not expense:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    if expense.status == "approved":
+        raise HTTPException(status_code=400, detail="Approved expense cannot be deleted")
+
+    db.delete(expense)
+    db.commit()
+    return Response(status_code=204)

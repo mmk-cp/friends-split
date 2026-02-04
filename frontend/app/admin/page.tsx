@@ -44,6 +44,16 @@ export default function AdminPage() {
     onError: (e: any) => toast.push({ type: "error", message: e.message || "خطا" }),
   });
 
+  const remove = useMutation({
+    mutationFn: async (id: number) => apiFetch(`/users/${id}`, { method: "DELETE", auth: true }),
+    onSuccess: async () => {
+      toast.push({ type: "success", message: "کاربر حذف شد" });
+      await qc.invalidateQueries({ queryKey: ["pendingUsers"] });
+      await qc.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (e: any) => toast.push({ type: "error", message: e.message || "خطا" }),
+  });
+
   const pending = pendingQ.data || [];
   const approved = (usersQ.data || []).filter((u) => u.is_approved);
 
@@ -72,9 +82,20 @@ export default function AdminPage() {
                     <Badge tone="amber">Pending</Badge>
                   </div>
                 </div>
-                <Button onClick={() => approve.mutate(u.id)} disabled={approve.isPending}>
-                  تایید
-                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button onClick={() => approve.mutate(u.id)} disabled={approve.isPending}>
+                    تایید
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => {
+                      if (window.confirm("این کاربر تاییدنشده حذف شود؟")) remove.mutate(u.id);
+                    }}
+                    disabled={remove.isPending}
+                  >
+                    حذف
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>

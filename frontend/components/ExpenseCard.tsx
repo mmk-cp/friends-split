@@ -18,20 +18,34 @@ export default function ExpenseCard({
   expense,
   users,
   myId,
+  isAdmin,
 }: {
   expense: Expense;
   users: User[];
   myId: number;
+  isAdmin: boolean;
 }) {
   const toast = useToast();
   const qc = useQueryClient();
 
   const needsMyApproval = expense.participants.some((p) => p.user_id === myId && !p.approved);
+  const canAdminDelete = isAdmin && expense.status !== "approved";
 
   const approve = useMutation({
     mutationFn: async () => apiFetch(`/expenses/${expense.id}/approve`, { method: "POST", auth: true }),
     onSuccess: async () => {
       toast.push({ type: "success", message: "تایید شد" });
+      await qc.invalidateQueries({ queryKey: ["expenses"] });
+      await qc.invalidateQueries({ queryKey: ["pendingApprovals"] });
+      await qc.invalidateQueries({ queryKey: ["settlement"] });
+    },
+    onError: (e: any) => toast.push({ type: "error", message: e.message || "خطا" }),
+  });
+
+  const remove = useMutation({
+    mutationFn: async () => apiFetch(`/expenses/${expense.id}`, { method: "DELETE", auth: true }),
+    onSuccess: async () => {
+      toast.push({ type: "success", message: "هزینه حذف شد" });
       await qc.invalidateQueries({ queryKey: ["expenses"] });
       await qc.invalidateQueries({ queryKey: ["pendingApprovals"] });
       await qc.invalidateQueries({ queryKey: ["settlement"] });
@@ -70,11 +84,24 @@ export default function ExpenseCard({
           ))}
         </div>
 
-        {needsMyApproval && (
-          <div className="mt-3">
-            <Button onClick={() => approve.mutate()} disabled={approve.isPending}>
-              تایید این هزینه
-            </Button>
+        {(needsMyApproval || canAdminDelete) && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {needsMyApproval && (
+              <Button onClick={() => approve.mutate()} disabled={approve.isPending}>
+                تایید این هزینه
+              </Button>
+            )}
+            {canAdminDelete && (
+              <Button
+                variant="danger"
+                onClick={() => {
+                  if (window.confirm("این هزینه تایید نشده حذف شود؟")) remove.mutate();
+                }}
+                disabled={remove.isPending}
+              >
+                حذف هزینه تایید نشده
+              </Button>
+            )}
           </div>
         )}
       </div>

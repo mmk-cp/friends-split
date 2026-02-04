@@ -119,7 +119,7 @@ export default function DashboardPage() {
             <div className="grid gap-3">
               {pending.map((e, idx) => (
                 <div key={e.id} className="animate-rise" style={{ animationDelay: `${idx * 40}ms` }}>
-                  <ExpenseCard expense={e} users={users} myId={user!.id} />
+                  <ExpenseCard expense={e} users={users} myId={user!.id} isAdmin={!!user?.is_admin} />
                 </div>
               ))}
             </div>
@@ -137,7 +137,7 @@ export default function DashboardPage() {
             <div className="grid gap-3">
               {expenses.map((e, idx) => (
                 <div key={e.id} className="animate-rise" style={{ animationDelay: `${idx * 40}ms` }}>
-                  <ExpenseCard expense={e} users={users} myId={user!.id} />
+                  <ExpenseCard expense={e} users={users} myId={user!.id} isAdmin={!!user?.is_admin} />
                 </div>
               ))}
             </div>
