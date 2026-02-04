@@ -117,7 +117,12 @@ export default function ExpenseModal({
           <div className="mt-1 text-xs text-[var(--muted)]">تاریخ شمسی (پیش‌فرض: امروز)</div>
         </div>
 
-        <UserSelect users={users} selected={selected} onChange={setSelected} title="افراد داخل هزینه (تقسیم مساوی)" />
+        <UserSelect
+          users={users.filter((u) => u.is_active && u.is_approved)}
+          selected={selected}
+          onChange={setSelected}
+          title="افراد داخل هزینه (تقسیم مساوی)"
+        />
 
         <div className="flex gap-2">
           <Button variant="secondary" onClick={onClose} type="button" className="flex-1">

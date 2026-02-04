@@ -31,6 +31,9 @@ def create_expense(payload: ExpenseCreate, db: Session = Depends(get_db), curren
     not_approved = [u.id for u in users if not u.is_approved]
     if not_approved:
         raise HTTPException(status_code=400, detail=f"These users are not approved: {not_approved}")
+    inactive = [u.id for u in users if not u.is_active]
+    if inactive:
+        raise HTTPException(status_code=400, detail=f"These users are inactive: {inactive}")
 
     sh_y, sh_m = to_shamsi_year_month(payload.expense_date)
 

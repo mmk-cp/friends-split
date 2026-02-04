@@ -21,3 +21,6 @@ class UserOut(BaseModel):
 
 class UserApproveRequest(BaseModel):
     is_approved: bool = True
+
+class UserActiveRequest(BaseModel):
+    is_active: bool = True

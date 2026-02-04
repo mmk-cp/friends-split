@@ -99,9 +99,17 @@ export function Modal({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-40">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black/50"
+        onMouseDown={onClose}
+        onTouchStart={onClose}
+      />
       <div className="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center p-3">
-        <div className="w-full sm:max-w-lg rounded-2xl bg-[var(--surface)] shadow-[var(--shadow)] border border-[var(--border)]">
+        <div
+          className="w-full sm:max-w-lg rounded-2xl bg-[var(--surface)] shadow-[var(--shadow)] border border-[var(--border)]"
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
           <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
             <div className="font-semibold font-display">{title}</div>
             <button className="text-[var(--muted)] hover:text-[var(--text)]" onClick={onClose} aria-label="close">

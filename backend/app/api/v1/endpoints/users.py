@@ -7,7 +7,7 @@ from sqlalchemy import select, func
 from app.api.deps import get_db, get_current_user, require_admin
 from app.core.security import hash_password
 from app.models.user import User
-from app.schemas.user import UserCreate, UserOut, UserApproveRequest
+from app.schemas.user import UserCreate, UserOut, UserApproveRequest, UserActiveRequest
 
 router = APIRouter()
 
@@ -45,7 +45,7 @@ def list_users(db: Session = Depends(get_db), _: User = Depends(get_current_user
 
 @router.get("/pending-approvals", response_model=list[UserOut])
 def list_pending_users(db: Session = Depends(get_db), _: User = Depends(require_admin)) -> list[User]:
-    users = db.scalars(select(User).where(User.is_approved == False)).all()  # noqa: E712
+    users = db.scalars(select(User).where(User.is_approved == False, User.is_active == True)).all()  # noqa: E712
     return list(users)
 
 @router.patch("/{user_id}/approve", response_model=UserOut)
@@ -59,6 +59,23 @@ def approve_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     user.is_approved = bool(payload.is_approved)
+    db.commit()
+    db.refresh(user)
+    return user
+
+@router.patch("/{user_id}/active", response_model=UserOut)
+def set_user_active(
+    user_id: int,
+    payload: UserActiveRequest,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_admin),
+) -> User:
+    user = db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.is_admin:
+        raise HTTPException(status_code=400, detail="Admin user cannot be deactivated")
+    user.is_active = bool(payload.is_active)
     db.commit()
     db.refresh(user)
     return user

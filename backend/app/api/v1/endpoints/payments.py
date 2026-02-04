@@ -27,6 +27,8 @@ def create_payment(payload: PaymentCreate, db: Session = Depends(get_db), curren
         raise HTTPException(status_code=404, detail="Receiver user not found")
     if not to_user.is_approved:
         raise HTTPException(status_code=400, detail="Receiver user is not approved")
+    if not to_user.is_active:
+        raise HTTPException(status_code=400, detail="Receiver user is inactive")
 
     sh_y, sh_m = to_shamsi_year_month(payload.payment_date)
 

@@ -44,6 +44,17 @@ export default function AdminPage() {
     onError: (e: any) => toast.push({ type: "error", message: e.message || "خطا" }),
   });
 
+  const setActive = useMutation({
+    mutationFn: async ({ id, is_active }: { id: number; is_active: boolean }) =>
+      apiFetch<User>(`/users/${id}/active`, { method: "PATCH", auth: true, body: JSON.stringify({ is_active }) }),
+    onSuccess: async () => {
+      toast.push({ type: "success", message: "وضعیت کاربر به‌روزرسانی شد" });
+      await qc.invalidateQueries({ queryKey: ["pendingUsers"] });
+      await qc.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (e: any) => toast.push({ type: "error", message: e.message || "خطا" }),
+  });
+
   const remove = useMutation({
     mutationFn: async (id: number) => apiFetch(`/users/${id}`, { method: "DELETE", auth: true }),
     onSuccess: async () => {
@@ -115,15 +126,41 @@ export default function AdminPage() {
                     <div className="font-semibold truncate">
                       {u.first_name} {u.last_name} <span className="text-sm text-[var(--muted)]">(@{u.username})</span>
                     </div>
-                    <div className="text-xs text-[var(--muted)] mt-1">
-                      <Badge tone="green">Approved</Badge>
-                    </div>
+                  <div className="text-xs text-[var(--muted)] mt-1 flex items-center gap-2">
+                    <Badge tone="green">Approved</Badge>
+                    {!u.is_active && <Badge tone="amber">Inactive</Badge>}
                   </div>
+                </div>
+                <div className="flex items-center gap-2">
                   {u.is_admin && <Badge tone="amber">Admin</Badge>}
-                </Card>
-              ))}
-            </div>
-          )}
+                  {!u.is_admin && (
+                    <>
+                      {u.is_active ? (
+                        <Button
+                          variant="danger"
+                          onClick={() => {
+                            if (window.confirm("این کاربر غیرفعال شود؟")) setActive.mutate({ id: u.id, is_active: false });
+                          }}
+                          disabled={setActive.isPending}
+                        >
+                          غیرفعال
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="secondary"
+                          onClick={() => setActive.mutate({ id: u.id, is_active: true })}
+                          disabled={setActive.isPending}
+                        >
+                          فعال‌سازی
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
         </div>
       </div>
     </ProtectedRoute>

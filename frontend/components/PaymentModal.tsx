@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Modal, Button, Input, Textarea, Label } from "@/components/ui";
+import { UserSelectSingle } from "@/components/UserSelect";
 import type { User } from "@/types/user";
 import { apiFetch } from "@/lib/api";
 import { useToast } from "@/components/Toast";
@@ -66,24 +67,13 @@ export default function PaymentModal({
   const daysInMonth = jalaliMonthLength(jy, jm);
   const selectClass =
     "w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)] outline-none focus:ring-2 focus:ring-[var(--accent-soft)] focus:border-[var(--accent)]";
+  const activeUsers = users.filter((u) => u.is_active && u.is_approved);
 
   return (
     <Modal open={open} onClose={onClose} title="ثبت پرداخت">
       <div className="space-y-3">
         <div>
-          <Label>به چه کسی؟</Label>
-          <select
-            value={toUserId}
-            onChange={(e) => setToUserId(e.target.value ? Number(e.target.value) : "")}
-            className={selectClass}
-          >
-            <option value="">انتخاب کنید…</option>
-            {users.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.first_name} {u.last_name} (@{u.username})
-              </option>
-            ))}
-          </select>
+          <UserSelectSingle users={activeUsers} selected={toUserId} onChange={setToUserId} title="به چه کسی؟" />
         </div>
         <div>
           <Label>مبلغ</Label>
