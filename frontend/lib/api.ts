@@ -10,7 +10,7 @@ if (!API_BASE) {
 
 type FetchOptions = RequestInit & { auth?: boolean };
 
-export async function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
+async function request<T>(path: string, options: FetchOptions = {}): Promise<{ data: T; headers: Headers }> {
   const headers = new Headers(options.headers || {});
   headers.set("Content-Type", "application/json");
 
@@ -43,5 +43,14 @@ export async function apiFetch<T>(path: string, options: FetchOptions = {}): Pro
     throw err;
   }
 
-  return data as T;
+  return { data: data as T, headers: res.headers };
+}
+
+export async function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
+  const res = await request<T>(path, options);
+  return res.data;
+}
+
+export async function apiFetchWithMeta<T>(path: string, options: FetchOptions = {}): Promise<{ data: T; headers: Headers }> {
+  return request<T>(path, options);
 }

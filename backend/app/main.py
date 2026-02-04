@@ -13,6 +13,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Total-Count", "X-Total-Pages", "X-Per-Page", "X-Page"],
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

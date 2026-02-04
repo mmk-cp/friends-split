@@ -4,8 +4,9 @@ from datetime import datetime, timezone
 from decimal import Decimal, ROUND_HALF_UP
 
 from fastapi import APIRouter, Depends, HTTPException, Response
+from math import ceil
 from sqlalchemy.orm import Session
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, or_, cast, String, func
 
 from app.api.deps import get_db, require_approved_user, require_admin
 from app.core.jalali import to_shamsi_year_month
@@ -77,16 +78,57 @@ def create_expense(payload: ExpenseCreate, db: Session = Depends(get_db), curren
 
 @router.get("", response_model=list[ExpenseOut])
 def list_expenses(
+    response: Response,
     db: Session = Depends(get_db),
-    _: User = Depends(require_approved_user),
+    current: User = Depends(require_approved_user),
     shamsi_year: int | None = None,
     shamsi_month: int | None = None,
+    scope: str | None = None,
+    q: str | None = None,
+    page: int | None = None,
+    per_page: int = 10,
 ) -> list[Expense]:
-    stmt = select(Expense).order_by(Expense.id.desc())
+    if page is not None and (page <= 0 or per_page <= 0):
+        raise HTTPException(status_code=400, detail="page and per_page must be positive")
+    base_filters = []
     if shamsi_year is not None:
-        stmt = stmt.where(Expense.shamsi_year == shamsi_year)
+        base_filters.append(Expense.shamsi_year == shamsi_year)
     if shamsi_month is not None:
-        stmt = stmt.where(Expense.shamsi_month == shamsi_month)
+        base_filters.append(Expense.shamsi_month == shamsi_month)
+    if q:
+        q_trim = q.strip()
+        if q_trim:
+            like = f"%{q_trim}%"
+            base_filters.append(
+                or_(
+                    Expense.description.ilike(like),
+                    cast(Expense.amount, String).like(like),
+                )
+            )
+
+    needs_scope_filter = not (scope == "all" and current.is_admin)
+    stmt = select(Expense).order_by(Expense.id.desc())
+    if needs_scope_filter:
+        stmt = stmt.join(ExpenseParticipant, ExpenseParticipant.expense_id == Expense.id, isouter=True)
+        stmt = stmt.where(or_(Expense.payer_id == current.id, ExpenseParticipant.user_id == current.id))
+    if base_filters:
+        stmt = stmt.where(*base_filters)
+    if needs_scope_filter:
+        stmt = stmt.distinct()
+    if page is not None:
+        count_stmt = select(func.count(func.distinct(Expense.id))).select_from(Expense)
+        if needs_scope_filter:
+            count_stmt = count_stmt.join(ExpenseParticipant, ExpenseParticipant.expense_id == Expense.id, isouter=True)
+            count_stmt = count_stmt.where(or_(Expense.payer_id == current.id, ExpenseParticipant.user_id == current.id))
+        if base_filters:
+            count_stmt = count_stmt.where(*base_filters)
+        total = db.scalar(count_stmt) or 0
+        total_pages = ceil(total / per_page) if per_page else 0
+        response.headers["X-Total-Count"] = str(total)
+        response.headers["X-Total-Pages"] = str(total_pages)
+        response.headers["X-Per-Page"] = str(per_page)
+        response.headers["X-Page"] = str(page)
+        stmt = stmt.limit(per_page).offset((page - 1) * per_page)
     expenses = db.scalars(stmt).all()
     return list(expenses)
 
