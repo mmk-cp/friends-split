@@ -73,3 +73,7 @@ docker compose up --build
   ```
 
 ---
+
+
+
+docker build --build-arg NEXT_PUBLIC_API_BASE_URL="https://hesab-api.tabaro.ir/api/v1" -t "registry.tabaro.ir/friends-split-front:latest" .
