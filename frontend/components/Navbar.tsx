@@ -9,6 +9,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 
 const nav = [
   { href: "/dashboard", label: "داشبورد", icon: "🏠" },
+  { href: "/account", label: "حساب کاربری", icon: "👤" },
   { href: "/admin", label: "ادمین", icon: "🛡️", admin: true },
 ];
 

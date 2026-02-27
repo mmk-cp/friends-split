@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 
 from app.api.deps import get_db, get_current_user, require_admin
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
 from app.models.user import User
-from app.schemas.user import UserCreate, UserOut, UserApproveRequest, UserActiveRequest
+from app.schemas.user import UserCreate, UserOut, UserApproveRequest, UserActiveRequest, UserPasswordChange
 
 router = APIRouter()
 
@@ -37,6 +37,21 @@ def register_user(payload: UserCreate, db: Session = Depends(get_db)) -> User:
 @router.get("/me", response_model=UserOut)
 def me(current: User = Depends(get_current_user)) -> User:
     return current
+
+@router.post("/me/password", status_code=204, response_class=Response)
+def change_my_password(
+    payload: UserPasswordChange,
+    db: Session = Depends(get_db),
+    current: User = Depends(get_current_user),
+) -> Response:
+    if not verify_password(payload.current_password, current.hashed_password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if payload.current_password == payload.new_password:
+        raise HTTPException(status_code=400, detail="New password must be different")
+
+    current.hashed_password = hash_password(payload.new_password)
+    db.commit()
+    return Response(status_code=204)
 
 @router.get("", response_model=list[UserOut])
 def list_users(db: Session = Depends(get_db), _: User = Depends(get_current_user)) -> list[User]:

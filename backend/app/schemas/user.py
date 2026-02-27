@@ -24,3 +24,7 @@ class UserApproveRequest(BaseModel):
 
 class UserActiveRequest(BaseModel):
     is_active: bool = True
+
+class UserPasswordChange(BaseModel):
+    current_password: str = Field(min_length=6, max_length=128)
+    new_password: str = Field(min_length=6, max_length=128)
