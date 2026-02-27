@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from math import ceil
@@ -10,14 +10,12 @@ from sqlalchemy import select, and_, or_, cast, String, func
 
 from app.api.deps import get_db, require_approved_user, require_admin
 from app.core.jalali import to_shamsi_year_month
+from app.core.finance import round2, split_evenly
 from app.models.user import User
 from app.models.expense import Expense, ExpenseParticipant
 from app.schemas.expense import ExpenseCreate, ExpenseOut, ExpenseApproveResponse
 
 router = APIRouter()
-
-def _round2(x: Decimal) -> Decimal:
-    return x.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 @router.post("", response_model=ExpenseOut)
 def create_expense(payload: ExpenseCreate, db: Session = Depends(get_db), current: User = Depends(require_approved_user)) -> Expense:
@@ -38,12 +36,12 @@ def create_expense(payload: ExpenseCreate, db: Session = Depends(get_db), curren
 
     sh_y, sh_m = to_shamsi_year_month(payload.expense_date)
 
-    count = Decimal(len(participant_ids))
-    share = _round2(Decimal(payload.amount) / count)
+    amount = round2(Decimal(payload.amount))
+    shares = split_evenly(amount, participant_ids, remainder_receiver_id=(current.id if current.id in participant_ids else None))
 
     expense = Expense(
         payer_id=current.id,
-        amount=_round2(Decimal(payload.amount)),
+        amount=amount,
         description=payload.description,
         expense_date=payload.expense_date,
         shamsi_year=sh_y,
@@ -60,7 +58,7 @@ def create_expense(payload: ExpenseCreate, db: Session = Depends(get_db), curren
             ExpenseParticipant(
                 expense_id=expense.id,
                 user_id=uid,
-                share_amount=share,
+                share_amount=shares[uid],
                 approved=auto,
                 approved_at=(datetime.now(timezone.utc) if auto else None),
             )

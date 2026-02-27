@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select, and_, or_
@@ -10,11 +10,9 @@ from app.models.user import User
 from app.models.expense import Expense, ExpenseParticipant
 from app.models.payment import Payment
 from app.schemas.settlement import SettlementReport, TransferSuggestion, UserBalance
+from app.core.finance import round2
 
 router = APIRouter()
-
-def _round2(x: Decimal) -> Decimal:
-    return x.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 @router.get("", response_model=SettlementReport)
 def settlement_for_month(
@@ -48,15 +46,31 @@ def settlement_for_month(
 
     for e in expenses:
         parts = db.scalars(select(ExpenseParticipant).where(ExpenseParticipant.expense_id == e.id)).all()
+        if not parts:
+            continue
         payer = e.payer_id
+        non_payer_parts = [p for p in parts if p.user_id != payer]
+
+        shares: dict[int, Decimal] = {}
+        total_shares = Decimal("0.00")
         for p in parts:
-            if p.user_id != payer:
-                net[p.user_id] -= Decimal(p.share_amount)
-                net[payer] += Decimal(p.share_amount)
-            if payer == current.id and p.user_id in my_net and p.user_id != payer:
-                my_net[p.user_id] += Decimal(p.share_amount)
-            elif p.user_id == current.id and payer in my_net and p.user_id != payer:
-                my_net[payer] -= Decimal(p.share_amount)
+            share = Decimal(p.share_amount)
+            shares[p.user_id] = share
+            total_shares += share
+
+        diff = round2(Decimal(e.amount) - total_shares)
+        if diff != Decimal("0.00") and non_payer_parts:
+            target = min(non_payer_parts, key=lambda p: p.user_id)
+            shares[target.user_id] = round2(shares[target.user_id] + diff)
+
+        for p in non_payer_parts:
+            share = shares[p.user_id]
+            net[p.user_id] -= share
+            net[payer] += share
+            if payer == current.id and p.user_id in my_net:
+                my_net[p.user_id] += share
+            elif p.user_id == current.id and payer in my_net:
+                my_net[payer] -= share
 
     pay_filter = or_(
         Payment.shamsi_year < shamsi_year,
@@ -88,7 +102,7 @@ def settlement_for_month(
             d_uid, d_amt = debtors[i]
             c_uid, c_amt = creditors[j]
             x = d_amt if d_amt < c_amt else c_amt
-            x = _round2(x)
+            x = round2(x)
             if x > 0:
                 transfers.append(TransferSuggestion(from_user_id=d_uid, to_user_id=c_uid, amount=x))
             d_amt -= x
@@ -100,9 +114,9 @@ def settlement_for_month(
             if c_amt <= Decimal("0.0001"):
                 j += 1
 
-    balances = [UserBalance(user_id=uid, balance=_round2(bal)) for uid, bal in net.items()] if is_admin_view else []
+    balances = [UserBalance(user_id=uid, balance=round2(bal)) for uid, bal in net.items()] if is_admin_view else []
     my_balances = [
-        UserBalance(user_id=uid, balance=_round2(bal))
+        UserBalance(user_id=uid, balance=round2(bal))
         for uid, bal in my_net.items()
         if abs(bal) > Decimal("0.0001")
     ]

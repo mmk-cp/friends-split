@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from math import ceil
@@ -9,14 +9,12 @@ from sqlalchemy import select, or_, func
 
 from app.api.deps import get_db, require_approved_user
 from app.core.jalali import to_shamsi_year_month
+from app.core.finance import round2
 from app.models.user import User
 from app.models.payment import Payment
 from app.schemas.payment import PaymentCreate, PaymentOut
 
 router = APIRouter()
-
-def _round2(x: Decimal) -> Decimal:
-    return x.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 @router.post("", response_model=PaymentOut)
 def create_payment(payload: PaymentCreate, db: Session = Depends(get_db), current: User = Depends(require_approved_user)) -> Payment:
@@ -36,7 +34,7 @@ def create_payment(payload: PaymentCreate, db: Session = Depends(get_db), curren
     payment = Payment(
         from_user_id=current.id,
         to_user_id=payload.to_user_id,
-        amount=_round2(Decimal(payload.amount)),
+        amount=round2(Decimal(payload.amount)),
         description=payload.description,
         payment_date=payload.payment_date,
         shamsi_year=sh_y,
