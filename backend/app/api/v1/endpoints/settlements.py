@@ -3,7 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, or_
 
 from app.api.deps import get_db, require_approved_user
 from app.models.user import User
@@ -15,9 +15,7 @@ from app.core.finance import round2
 router = APIRouter()
 
 @router.get("", response_model=SettlementReport)
-def settlement_for_month(
-    shamsi_year: int,
-    shamsi_month: int,
+def settlement_overall(
     db: Session = Depends(get_db),
     current: User = Depends(require_approved_user),
     scope: str | None = None,
@@ -30,12 +28,7 @@ def settlement_for_month(
     net: dict[int, Decimal] = {uid: Decimal("0.00") for uid in user_ids}
     my_net: dict[int, Decimal] = {uid: Decimal("0.00") for uid in user_ids if uid != current.id}
 
-    month_filter = or_(
-        Expense.shamsi_year < shamsi_year,
-        and_(Expense.shamsi_year == shamsi_year, Expense.shamsi_month <= shamsi_month),
-    )
-
-    exp_stmt = select(Expense).where(and_(month_filter, Expense.status == "approved"))
+    exp_stmt = select(Expense).where(Expense.status == "approved")
     if not is_admin_view:
         exp_stmt = (
             exp_stmt.join(ExpenseParticipant, ExpenseParticipant.expense_id == Expense.id, isouter=True)
@@ -72,11 +65,7 @@ def settlement_for_month(
             elif p.user_id == current.id and payer in my_net:
                 my_net[payer] -= share
 
-    pay_filter = or_(
-        Payment.shamsi_year < shamsi_year,
-        and_(Payment.shamsi_year == shamsi_year, Payment.shamsi_month <= shamsi_month),
-    )
-    pay_stmt = select(Payment).where(pay_filter)
+    pay_stmt = select(Payment)
     if not is_admin_view:
         pay_stmt = pay_stmt.where(or_(Payment.from_user_id == current.id, Payment.to_user_id == current.id))
     payments = db.scalars(pay_stmt).all()
@@ -122,8 +111,6 @@ def settlement_for_month(
     ]
 
     return SettlementReport(
-        shamsi_year=shamsi_year,
-        shamsi_month=shamsi_month,
         balances=balances,
         my_balances=my_balances,
         transfers=transfers,

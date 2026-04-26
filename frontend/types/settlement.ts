@@ -10,8 +10,6 @@ export type Balance = {
 };
 
 export type SettlementReport = {
-  shamsi_year: number;
-  shamsi_month: number;
   balances: Balance[];
   my_balances: Balance[];
   transfers: Transfer[];

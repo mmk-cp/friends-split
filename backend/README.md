@@ -30,4 +30,4 @@ uvicorn app.main:app --reload
 - First registered user becomes **admin** and **approved** automatically.
 - Other users are **pending** until admin approves.
 - Expenses are **pending** until all participants approve.
-- Monthly settlement works with **Shamsi (Jalali) year/month** (query params).
+- Settlement report is **cumulative across all approved expenses and recorded payments** (scope-based view).

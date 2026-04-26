@@ -105,8 +105,8 @@ export default function DashboardPage() {
   });
 
   const settleQ = useQuery({
-    queryKey: ["settlement", year, month, scope],
-    queryFn: () => apiFetch<SettlementReport>(`/settlements?shamsi_year=${year}&shamsi_month=${month}&scope=${scope}`, { auth: true }),
+    queryKey: ["settlement", scope],
+    queryFn: () => apiFetch<SettlementReport>(`/settlements?scope=${scope}`, { auth: true }),
     enabled: !!user,
   });
 
@@ -353,7 +353,7 @@ export default function DashboardPage() {
 
         {/* Settlement */}
         <div id="settlement" className="space-y-3 scroll-mt-24">
-          <div className="font-semibold font-display">تسویه تا پایان این ماه</div>
+          <div className="font-semibold font-display">جمع کل بدهی و طلب</div>
           {settleQ.isLoading ? (
             <div className="text-sm text-[var(--muted)]">در حال محاسبه…</div>
           ) : !settlement ? (
@@ -412,7 +412,7 @@ export default function DashboardPage() {
                   </div>
                 )}
                 <div className="mt-2 text-xs text-[var(--muted)]">
-                  محاسبه بر اساس هزینه‌های تاییدشده و پرداخت‌های ثبت‌شده تا پایان این ماه است.
+                  محاسبه بر اساس همه هزینه‌های تاییدشده و همه پرداخت‌های ثبت‌شده در کل بازه زمانی است.
                 </div>
               </Card>
 
